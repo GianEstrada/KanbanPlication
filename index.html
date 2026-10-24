@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kanban Practicas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  </head>
+  
+  <body class=" m-0 p-0 bg-light vh-100 d-flex flex-column">
+    <header class= "bg-dark text-light p-3 rounded-top-0 rounded-bottom-3 d-flex">
+      <div class="container d-flex align-items-center justify-content-start">
+        <h1>Kanban Practicas</h1>
+      </div>
+      <div class="container container d-flex align-items-center justify-content-end">
+        <button class="btn btn-light me-4" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="bi bi-plus"></i>
+        </button>
+        <button class="btn btn-light">
+            <i class="bi bi-bell"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Modal fomulario de creacion -->
+    <div class="modal fade" id="createModal" tabindex="-1" >
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Crear Nueva Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="document.getElementById('createTaskForm').reset()"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createTaskForm" >
+                        <input type="hidden" name="id" id="inputIdOculto">
+                        <div class="mb-3">
+                            <div class="mb-3" id="taskTitleContainer">
+                                <label for="taskTitle" class="form-label">Nombre del puesto</label>
+                                <input type="text" name="Puesto" class="form-control" id="taskTitle" required>
+                                <label for="taskDescription" class="form-label">Descripción del puesto</label>
+                                <textarea name="Descripcion" class="form-control" id="taskDescription" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3" id="taskCompanyContainer">
+                                <label for="taskCompany" class="form-label">Empresa</label>
+                                <input type="text" name="Empresa" class="form-control" id="taskCompany" required>
+                                <label for="taskLocation" class="form-label">Ubicación</label>
+                                <input type="text" name="Ubicacion" class="form-control" id="taskLocation" required>
+                            </div>
+                            <div class="mb-3 justify-content-between" id="taskShiftContainer">
+                                <label for="taskTimeContainer" class="form-label">Horario</label>
+                                <div class="mb-3 bg-light p-3 d-flex" id="taskTimeContainer">
+                                    <div class="me-3">
+                                        <label for="taskTime" class="form-label">Hora de inicio</label>
+                                        <input type="time" name="HoraInicio" class="form-control" id="taskTime" required>
+                                    </div>
+                                    <div class="me-3">
+                                        <label for="taskEndTime" class="form-label">Hora de fin</label>
+                                        <input type="time" name="HoraFin" class="form-control" id="taskEndTime" required>
+                                    </div>
+                                    <div class="me-3">
+                                        <label for="taskFlex" class="form-label me-3">Flexible</label>
+                                        <input type="checkbox" name="Flexible" class="form-check-input d-block" id="taskFlex">
+                                    </div>
+                                    
+                                </div>
+                                <label for="taskMode" class="form-label">Modo de trabajo</label>
+                                <select name="ModoTrabajo" class="form-select" id="taskMode" required>
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Remoto">Remoto</option>
+                                    <option value="Híbrido">Híbrido</option>       
+                                </select>
+                            </div>
+                            <label for="taskSalary" class="form-label">Salario</label>
+                            <input type="text" name="Salario" class="form-control" id="taskSalary" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="saveTaskButton">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Card del kanban -->
+<template id="kanbanCardTemplate">
+    <div class="card mb-3 bg-body-secondary shadow-sm kanban-card" draggable="true">
+        <div class="card-body">
+            <h5 class="card-title fw-bold task-title"></h5>
+            <p class="card-text fw-bold task-company"></p>
+            
+            <div class="container d-flex justify-content-between px-0">
+                <p class="card-text"></p>
+                <p class="card-text text-muted task-time"></p>
+            </div>
+            <div class="container d-flex justify-content-between px-0">
+                <p class="card-text"></p>
+                <p class="card-text text-muted task-link"></p>
+            </div>
+            <div class="container d-flex justify-content-between px-0">
+                <p class="card-text"></p>
+                <p class="card-text text-muted task-location"></p>
+            </div>
+            <div class="container d-flex justify-content-between px-0">
+                <p class="card-text"></p>
+                <p class="card-text text-muted task-salary"></p>
+            </div>
+            <div class="container d-flex justify-content-between px-0 mt-3">
+                <button class="btn btn-sm btn-primary">Editar</button>
+                <button class="btn btn-sm btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+    <!-- Kanban -->
+    <main class="flex-grow-1 d-flex flex-column">
+        <div class="container-fluid flex-grow-1 d-flex flex-column pt-4 pb-4 px-4">
+            <div class="row flex-grow-1 flex-nowrap overflow-auto g-3">
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Solicitud Enviada</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-solicitud" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Entrevista Agendada</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-entrevista-agendada" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Entrevista Realizada</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-entrevista-realizada" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Pasos Extra</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-pasos-extra" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Contratado</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-contratado" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Rechazado</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-rechazado" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column" style="min-width: 300px;">
+                    <div class="bg-body rounded-3 p-3 flex-grow-1 shadow-sm border d-flex flex-column">
+                        <h5 class="fw-bold text-secondary">Sin respuesta</h5>
+                        <div class="kanban-column flex-grow-1 overflow-auto pe-1" id="col-sin-respuesta" style="min-height: 150px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
